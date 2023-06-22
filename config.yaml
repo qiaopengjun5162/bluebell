@@ -7,7 +7,7 @@ machine_id: 1
 
 log:
   level: "debug"
-  filename: "web_app.log"
+  filename: "bluebell.log"
   max_size: 30
   max_age: 30
   max_backups: 7
