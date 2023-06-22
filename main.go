@@ -70,7 +70,7 @@ func main() {
 	fmt.Printf("generation started with id: %v\n", id)
 
 	//	5. 注册路由
-	router := router.Setup()
+	router := router.SetupRouter()
 	//	6. 启动服务（优雅关机）
 	// 服务器定义运行HTTP服务器的参数。Server的零值是一个有效的配置。
 	srv := &http.Server{
