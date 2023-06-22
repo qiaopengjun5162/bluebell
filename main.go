@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bluebell/controller"
 	"bluebell/dao/mysql"
 	"bluebell/dao/redis"
 	"bluebell/logger"
@@ -68,16 +69,26 @@ func main() {
 	}
 	id := snowflake.GenID()
 	fmt.Printf("generation started with id: %v\n", id)
+	// 初始化gin框架内置的校验器 validator 使用的翻译器
+	if err := controller.InitTrans("zh"); err != nil {
+		fmt.Printf("init validator trans failed with error: %v\n", err)
+		return
+	}
 
 	//	5. 注册路由
-	router := router.SetupRouter()
+	r := router.SetupRouter()
+	//err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
+	//if err != nil {
+	//	fmt.Printf("run server failed with error: %v\n", err)
+	//	return
+	//}
 	//	6. 启动服务（优雅关机）
 	// 服务器定义运行HTTP服务器的参数。Server的零值是一个有效的配置。
 	srv := &http.Server{
 		// Addr可选地以“host:port”的形式指定服务器要监听的TCP地址。如果为空，则使用“:http”(端口80)。
 		// 服务名称在RFC 6335中定义，并由IANA分配
 		Addr:    fmt.Sprintf(":%d", setting.Conf.Port),
-		Handler: router,
+		Handler: r,
 	}
 
 	go func() {
