@@ -11,6 +11,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -75,7 +76,7 @@ func main() {
 	}
 
 	//	5. 注册路由
-	r := router.SetupRouter()
+	r := router.SetupRouter(gin.DebugMode)
 	//err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port))
 	//if err != nil {
 	//	fmt.Printf("run server failed with error: %v\n", err)

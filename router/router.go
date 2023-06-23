@@ -8,12 +8,16 @@ import (
 	"net/http"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(mode string) *gin.Engine {
+	if mode == gin.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode) // gin 设置成发布模式
+	}
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
 	// 注册业务路由
 	r.POST("/signup", controller.SignUpHandler)
+	r.POST("/login", controller.LoginHandler)
 
 	r.GET("/version", func(context *gin.Context) {
 		context.String(http.StatusOK, setting.Conf.Version)
