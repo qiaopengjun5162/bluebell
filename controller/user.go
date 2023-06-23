@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"bluebell/dao/mysql"
 	"bluebell/logic"
 	"bluebell/models"
-	"fmt"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 // SignUpHandler 处理注册请求的函数
@@ -20,31 +20,25 @@ func SignUpHandler(c *gin.Context) {
 		// 判断 err 是否是 validator.ValidationErrors类型
 		errs, ok := err.(validator.ValidationErrors)
 		if !ok {
-			// 非validator.ValidationErrors类型错误直接返回
-			c.JSON(http.StatusOK, gin.H{
-				"message": err.Error(),
-			})
+			ResponseError(c, CodeInvalidParam)
 			return
 		}
-		// validator.ValidationErrors类型错误则进行翻译
-		c.JSON(http.StatusOK, gin.H{
-			"message": removeTopStruct(errs.Translate(trans)),
-		})
-		fmt.Printf("paramSignUp error %v\n", err)
+		ResponseErrorWithMsg(c, CodeInvalidParam, removeTopStruct(errs.Translate(trans)))
 		return
 	}
-
-	fmt.Printf("signUp params: %v\n", p)
 	// 2. 业务处理
 	// 结构体是值类型，字段很多的时候，会有性能影响，故最好传指针
 	if err := logic.SignUp(p); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "registration failed",
-		})
+		zap.L().Error("logic.SignUp failed", zap.Error(err))
+		if errors.Is(err, mysql.ErrorUserExist) {
+			ResponseError(c, CodeUserExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
 		return
 	}
 	// 3. 返回响应
-	c.JSON(http.StatusOK, gin.H{"message": "success"})
+	ResponseSuccess(c, nil)
 }
 
 func LoginHandler(c *gin.Context) {
@@ -56,24 +50,22 @@ func LoginHandler(c *gin.Context) {
 		// 判断 err 是否是 validator.ValidationErrors类型
 		errs, ok := err.(validator.ValidationErrors)
 		if !ok {
-			c.JSON(http.StatusOK, gin.H{
-				"message": err.Error(),
-			})
+			ResponseError(c, CodeInvalidParam)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": removeTopStruct(errs.Translate(trans)), // 翻译错误
-		})
+		ResponseErrorWithMsg(c, CodeInvalidParam, removeTopStruct(errs.Translate(trans))) // 翻译错误
 		return
 	}
 	// 2. 业务逻辑处理
 	if err := logic.Login(p); err != nil {
 		zap.L().Error("logic Login failed", zap.String("username", p.Username), zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Login failed, username or password incorrect",
-		})
+		if errors.Is(err, mysql.ErrorUserNotExist) {
+			ResponseError(c, CodeUserNotExist)
+			return
+		}
+		ResponseError(c, CodeInvalidPassword)
 		return
 	}
 	// 3. 返回响应
-	c.JSON(http.StatusOK, gin.H{"message": "login successful"})
+	ResponseSuccess(c, nil)
 }

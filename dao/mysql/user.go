@@ -8,10 +8,16 @@ import (
 	"errors"
 )
 
-const secret = "qiaopengjun.com"
-
 // 把每一步数据库操作封装成函数
 // 待 Logic 层根据业务需求调用
+
+const secret = "qiaopengjun.com"
+
+var (
+	ErrorUserExist       = errors.New("用户已存在")
+	ErrorUserNotExist    = errors.New("用户不存在")
+	ErrorInvalidPassword = errors.New("用户名或密码错误")
+)
 
 // CheckUserExist 检查指定用户名的用户是否存在
 func CheckUserExist(username string) (err error) {
@@ -22,7 +28,7 @@ func CheckUserExist(username string) (err error) {
 	}
 	if count > 0 {
 		// 用户已存在的错误
-		return errors.New("user already")
+		return ErrorUserExist
 	}
 	return
 }
@@ -51,12 +57,12 @@ func Login(user *models.User) (err error) {
 		return err // 查询数据库失败
 	}
 	if err == sql.ErrNoRows {
-		return errors.New("用户不存在")
+		return ErrorUserNotExist
 	}
 	//	判断密码是否正确
 	password := encryptPassword(oPassword)
 	if password != user.Password {
-		return errors.New("密码错误")
+		return ErrorInvalidPassword
 	}
 	return
 }
