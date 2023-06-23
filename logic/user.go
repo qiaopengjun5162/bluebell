@@ -3,9 +3,8 @@ package logic
 import (
 	"bluebell/dao/mysql"
 	"bluebell/models"
+	"bluebell/pkg/jwt"
 	"bluebell/pkg/snowflake"
-
-	"fmt"
 )
 
 // 存放业务逻辑的代码
@@ -19,7 +18,6 @@ func SignUp(p *models.ParamSignUp) (err error) {
 
 	// 2. 生成 UID
 	userID := snowflake.GenID()
-	fmt.Printf("generation started with userID: %v\n", userID)
 	// 3. 构造一个 User 实例
 	user := &models.User{
 		UserID:   userID,
@@ -31,12 +29,17 @@ func SignUp(p *models.ParamSignUp) (err error) {
 }
 
 // Login 登录
-func Login(p *models.ParamLogin) (err error) {
+func Login(p *models.ParamLogin) (token string, err error) {
 	// 构造一个 User 实例
 	user := &models.User{
 		UserName: p.Username,
 		Password: p.Password,
 	}
-	// 登录
-	return mysql.Login(user)
+	// 传递的是指针, 数据库中查询出来最后也赋值给 user，就能拿到 user.UserID
+	if err = mysql.Login(user); err != nil {
+		return "", err
+	}
+	// 生成 JWT
+	return jwt.GenToken(user.UserID, user.UserName)
+
 }
