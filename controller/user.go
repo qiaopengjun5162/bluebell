@@ -44,7 +44,12 @@ func SignUpHandler(c *gin.Context) {
 	fmt.Printf("signUp params: %v\n", p)
 	// 2. 业务处理
 	// 结构体是值类型，字段很多的时候，会有性能影响，故最好传指针
-	logic.SignUp(p)
+	if err := logic.SignUp(p); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "registration failed",
+		})
+		return
+	}
 	// 3. 返回响应
-	c.JSON(http.StatusOK, gin.H{"message": "OK"})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }

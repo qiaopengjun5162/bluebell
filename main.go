@@ -67,8 +67,7 @@ func main() {
 		fmt.Printf("init snowflake failed with error: %v\n", err)
 		return
 	}
-	id := snowflake.GenID()
-	fmt.Printf("generation started with id: %v\n", id)
+
 	// 初始化gin框架内置的校验器 validator 使用的翻译器
 	if err := controller.InitTrans("zh"); err != nil {
 		fmt.Printf("init validator trans failed with error: %v\n", err)

@@ -4,17 +4,27 @@ import (
 	"bluebell/dao/mysql"
 	"bluebell/models"
 	"bluebell/pkg/snowflake"
+
+	"fmt"
 )
 
 // 存放业务逻辑的代码
 
-func SignUp(p *models.ParamSignUp) {
+func SignUp(p *models.ParamSignUp) (err error) {
 	// 1. 判断用户是否存在
-	mysql.QueryUserByUsername()
-	// 2. 生成 UID
-	snowflake.GenID()
-	// 3. 密码加密
+	if err = mysql.CheckUserExist(p.Username); err != nil {
+		return err
+	}
 
+	// 2. 生成 UID
+	userID := snowflake.GenID()
+	fmt.Printf("generation started with userID: %v\n", userID)
+	// 3. 构造一个 User 实例
+	user := &models.User{
+		UserID:   userID,
+		UserName: p.Username,
+		Password: p.Password,
+	}
 	// 4. 保存到数据库
-	mysql.InsertUser()
+	return mysql.InsertUser(user)
 }
