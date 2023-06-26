@@ -11,13 +11,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"go.uber.org/zap"
 )
@@ -28,7 +29,6 @@ func main() {
 	filename := flag.String("filename", "config.yaml", "config file")
 	// 解析命令行参数
 	flag.Parse()
-	fmt.Println(*filename)
 	//返回命令行参数后的其他参数
 	fmt.Println(flag.Args())
 	//返回命令行参数后的其他参数个数
@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 	//	2. 初始化日志
-	if err := logger.Init(setting.Conf.LogConfig); err != nil {
+	if err := logger.Init(setting.Conf.LogConfig, setting.Conf.Mode); err != nil {
 		fmt.Printf("init logger failed, error: %v\n", err)
 		return
 	}

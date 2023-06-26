@@ -16,7 +16,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func Init(cfg *setting.LogConfig) (err error) {
+func Init(cfg *setting.LogConfig, mode string) (err error) {
 	writeSyncer := getLogWriter(
 		cfg.Filename,
 		cfg.MaxSize,
@@ -39,8 +39,17 @@ func Init(cfg *setting.LogConfig) (err error) {
 	// true for itself and all higher logging levels. For example WarnLevel.Enabled()
 	// will return true for WarnLevel, ErrorLevel, DPanicLevel, PanicLevel, and
 	// FatalLevel, but return false for InfoLevel and DebugLevel.
-	core := zapcore.NewCore(encoder, writeSyncer, l)
-
+	var core zapcore.Core
+	if mode == "dev" {
+		// 进入开发模式，日志输出到终端
+		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		core = zapcore.NewTee(
+			zapcore.NewCore(encoder, writeSyncer, l),
+			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
+		)
+	} else {
+		core = zapcore.NewCore(encoder, writeSyncer, l)
+	}
 	// New constructs a new Logger from the provided zapcore.Core and Options. If
 	// the passed zapcore.Core is nil, it falls back to using a no-op
 	// implementation.
@@ -50,6 +59,7 @@ func Init(cfg *setting.LogConfig) (err error) {
 	logger := zap.New(core, zap.AddCaller())
 	// 替换 zap 库中全局的logger
 	zap.ReplaceGlobals(logger)
+	zap.L().Info("init logger success")
 	return
 	// Sugar封装了Logger，以提供更符合人体工程学的API，但速度略慢。糖化一个Logger的成本非常低，
 	// 因此一个应用程序同时使用Loggers和SugaredLoggers是合理的，在性能敏感代码的边界上在它们之间进行转换。
