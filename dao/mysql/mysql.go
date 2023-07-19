@@ -14,7 +14,7 @@ var db *sqlx.DB
 
 func Init(cfg *setting.MySQLConfig) (err error) {
 	//DSN (Data Source Name) Sprintf根据格式说明符进行格式化，并返回结果字符串。
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=true",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=true&loc=Local",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
