@@ -26,14 +26,26 @@ CREATE TABLE  `community` (
                               UNIQUE KEY `idx_community_id` (`community_id`),
                               UNIQUE KEY `idx_community_name` (`community_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-DROP TABLE IF EXISTS `post`;
---CREATE TABLE  `post` (
---    `id` int(11) NOT NULL
---)
+
 
 INSERT INTO `community` VALUES ('1', '1', 'GO', 'Golang', '2023-07-14 19:01:01', '2023-07-14 19:01:01');
 INSERT INTO `community` VALUES ('2', '2', 'Python', 'Python语言', '2023-07-14 19:01:01', '2023-07-14 19:01:01');
 INSERT INTO `community` VALUES ('3', '3', 'C', 'C 语言', '2023-07-14 19:01:01', '2023-07-14 19:01:01');
 INSERT INTO `community` VALUES ('4', '4', 'rust', 'Rust 语言', '2023-07-14 19:01:01', '2023-07-14 19:01:01');
 
---
+DROP TABLE IF EXISTS `post`;
+CREATE TABLE  `post` (
+                         `id` int(11) NOT NULL AUTO_INCREMENT,
+                         `post_id` bigint(20) NOT NULL COMMENT '帖子ID',
+                         `title` varchar(128) COLLATE utf8mb4_general_ci NOT NULL COMMENT '标题',
+                         `content` varchar(8192) COLLATE utf8mb4_general_ci NOT NULL COMMENT '内容',
+                         `author_id` bigint(20) NOT NULL COMMENT '作者的用户ID',
+                         `community_id` bigint(20) NOT NULL COMMENT '所属社区',
+                         `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '帖子状态',
+                         `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                         `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `idx_post_id` (`post_id`),
+                         KEY `idx_author_id` (`author_id`),
+                         KEY `idx_community_id` (`community_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
