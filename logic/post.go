@@ -45,3 +45,35 @@ func GetPostById(pid int64) (data *models.ApiPostDetail, err error) {
 	}
 	return
 }
+
+// GetPostList 获取帖子列表
+func GetPostList(pageNumber, pageSize int64) (data []*models.ApiPostDetail, err error) {
+	posts, err := mysql.GetPostList(pageNumber, pageSize)
+	if err != nil {
+		zap.L().Error("mysql.GetPostList error ", zap.Error(err))
+		return
+	}
+	data = make([]*models.ApiPostDetail, 0, len(posts))
+	for _, post := range posts {
+		// 2. 根据作者ID查找作者信息
+		user, err := mysql.GetUserById(post.AuthorID)
+		if err != nil {
+			zap.L().Error("mysql get user by id failed", zap.Int64("author_id", post.AuthorID), zap.Error(err))
+			continue
+		}
+		// 3. 根据社区ID查询社区详细信息
+		community, err := mysql.GetCommunityDetailByID(post.CommunityID)
+		if err != nil {
+			zap.L().Error("mysql GetCommunityDetailByID failed", zap.Int64("community_id", post.CommunityID), zap.Error(err))
+			continue
+		}
+		// 4. 接口数据拼接
+		postDetail := &models.ApiPostDetail{
+			AuthorName:      user.UserName,
+			Post:            post,
+			CommunityDetail: community,
+		}
+		data = append(data, postDetail)
+	}
+	return
+}

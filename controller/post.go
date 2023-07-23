@@ -64,3 +64,18 @@ func CreatePostDetailHandler(c *gin.Context) {
 	// 3. 返回响应
 	ResponseSuccess(c, data)
 }
+
+// GetPostListHandler 获取帖子列表的处理函数
+func GetPostListHandler(c *gin.Context) {
+	// 获取分页参数
+	pageNumber, pageSize := getPageInfo(c)
+	// 1. 获取数据
+	data, err := logic.GetPostList(pageNumber, pageSize)
+	if err != nil {
+		zap.L().Error("get post list failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	// 2. 返回响应
+	ResponseSuccess(c, data)
+}
