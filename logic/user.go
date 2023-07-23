@@ -29,17 +29,21 @@ func SignUp(p *models.ParamSignUp) (err error) {
 }
 
 // Login 登录
-func Login(p *models.ParamLogin) (token string, err error) {
+func Login(p *models.ParamLogin) (user *models.User, err error) {
 	// 构造一个 User 实例
-	user := &models.User{
+	user = &models.User{
 		UserName: p.Username,
 		Password: p.Password,
 	}
 	// 传递的是指针, 数据库中查询出来最后也赋值给 user，就能拿到 user.UserID
 	if err = mysql.Login(user); err != nil {
-		return "", err
+		return nil, err
 	}
 	// 生成 JWT
-	return jwt.GenToken(user.UserID, user.UserName)
-
+	token, err := jwt.GenToken(user.UserID, user.UserName)
+	if err != nil {
+		return nil, err
+	}
+	user.Token = token
+	return
 }
