@@ -10,3 +10,8 @@ const (
 	KeyPostScoreZSet       = "post:score"  // zset; 帖子及投票的分数
 	KeyPostVotedZSetPrefix = "post:voted:" // zset; 记录用户及投票类型; 参数是 post id
 )
+
+// getRedisKey 给 Redis Key 加上 前缀
+func getRedisKey(key string) string {
+	return KeyPrefix + key
+}

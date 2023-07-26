@@ -1,6 +1,12 @@
 package logic
 
-import "bluebell/models"
+import (
+	"bluebell/dao/redis"
+	"bluebell/models"
+	"strconv"
+
+	"go.uber.org/zap"
+)
 
 // 推荐阅读
 // 基于用户投票的相关算法：http://www.ruanyifeng.com/blog/2012/03/
@@ -10,14 +16,14 @@ import "bluebell/models"
 
 /* 投票的几种情况：
 direction=1时，有两种情况：
-	1. 之前没有投过票，现在投赞成票
-	2. 之前投反对票，现在改投赞成票
+	1. 之前没有投过票，现在投赞成票      -->  更新分数和投票记录
+	2. 之前投反对票，现在改投赞成票      -->  更新分数和投票记录
 direction=0时，有两种情况：
-	1. 之前投过赞成票，现在要取消投票
-	2. 之前投过反对票，现在要取消投票
+	1. 之前投过赞成票，现在要取消投票    -->  更新分数和投票记录
+	2. 之前投过反对票，现在要取消投票    -->  更新分数和投票记录
 direction=-1时，有两种情况：
-	1. 之前没有投过票，现在投反对票
-	2. 之前投赞成票，现在改投反对票
+	1. 之前没有投过票，现在投反对票      -->  更新分数和投票记录
+	2. 之前投赞成票，现在改投反对票      -->  更新分数和投票记录
 
 投票的限制：
 每个帖子自发表之日起一个星期之内允许用户投票，超过一个星期就不允许再投票了。
@@ -26,7 +32,10 @@ direction=-1时，有两种情况：
 */
 
 // VoteForPost 帖子投票的函数
-func VoteForPost(userID int64, p *models.ParamVoteData) {
-	// 1.
-	// 2.
+func VoteForPost(userID int64, p *models.ParamVoteData) error {
+	zap.L().Debug("VoteForPost",
+		zap.Int64("userID", userID),
+		zap.String("postID", p.PostID),
+		zap.Float64("direction", p.Direction))
+	return redis.VoteForPost(strconv.Itoa(int(userID)), p.PostID, p.Direction)
 }
