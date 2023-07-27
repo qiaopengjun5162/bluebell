@@ -38,6 +38,33 @@ var (
 	ErrVoteTimeExpire = errors.New("投票时间已过")
 )
 
+func CreatePost(postID int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	// 事务
+	// TxPipeline acts like Pipeline, but wraps queued commands with MULTI/EXEC.
+	_, err := client.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		// 帖子时间
+		// Redis ZADD 命令用于将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
+		// https://www.runoob.com/redis/sorted-sets-zadd.html
+		// https://redis.com.cn/commands/zadd.html
+		pipeliner.ZAdd(ctx, getRedisKey(KeyPostTimeZSet), redis.Z{
+			Score:  float64(time.Now().Unix()),
+			Member: postID,
+		})
+		// 帖子分数
+		pipeliner.ZAdd(ctx, getRedisKey(KeyPostScoreZSet), redis.Z{
+			Score:  float64(time.Now().Unix()),
+			Member: postID,
+		})
+		// Exec is to send all the commands buffered in the pipeline to the redis-server.
+		_, err := pipeliner.Exec(ctx)
+		return err
+
+	})
+	return err
+}
+
 func VoteForPost(userID, postID string, value float64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
@@ -57,6 +84,7 @@ func VoteForPost(userID, postID string, value float64) error {
 		op = -1
 	}
 	diff := math.Abs(ov - value) // 计算两次投票的差值
+
 	_, err := client.ZIncrBy(ctx, getRedisKey(KeyPostScoreZSet), op*diff*scorePerVote, postID).Result()
 	if ErrVoteTimeExpire != nil {
 		return err
