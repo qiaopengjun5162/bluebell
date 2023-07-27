@@ -10,6 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	orderTime  = "time"
+	orderScore = "score"
+)
+
 // CreatePostHandler 创建帖子的处理函数
 // 这段代码是用于创建新帖子的处理函数。它遵循以下步骤：
 // 1. 从请求的 JSON 数据中获取参数并进行校验，使用了 JSON 校验器和绑定标签。
@@ -78,4 +83,37 @@ func GetPostListHandler(c *gin.Context) {
 	}
 	// 2. 返回响应
 	ResponseSuccess(c, data)
+}
+
+// GetPostListHandler2 升级版帖子列表接口
+// 根据前端传来的参数动态的获取帖子列表
+// 按创建时间排序 或者 按分数排序
+// 1. 获取参数
+// 2. 去Redis查询ID列表
+// 3. 根据ID去数据库查询帖子详细信息
+func GetPostListHandler2(c *gin.Context) {
+	// GET请求参数(query string)：/api/v1/posts2?page=1&size=10&order=time
+	// 获取分页参数
+	// 初始化结构体时指定初始参数
+	p := &models.ParamPostList{
+		Page:  1,
+		Size:  10,
+		Order: orderTime, // magic string
+	}
+	// c.ShouldBind() 根据请求的数据类型选择相应的方法去获取数据
+	// c.ShouldBindJSON() 如果请求中携带的是JSON格式的数据，才能用这个方法获取到数据
+	if err := c.ShouldBindQuery(p); err != nil {
+		zap.L().Error("get post list handler2 failed, with invalid params", zap.Error(err))
+		ResponseError(c, CodeInvalidParam)
+		return
+	}
+	//// 1. 获取数据
+	//data, err := logic.GetPostList(pageNumber, pageSize)
+	//if err != nil {
+	//	zap.L().Error("get post list failed", zap.Error(err))
+	//	ResponseError(c, CodeServerBusy)
+	//	return
+	//}
+	// 2. 返回响应
+	ResponseSuccess(c, "")
 }
