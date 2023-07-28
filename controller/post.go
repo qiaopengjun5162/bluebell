@@ -83,13 +83,14 @@ func GetPostListHandler(c *gin.Context) {
 // GetPostListHandler2 升级版帖子列表接口
 // 根据前端传来的参数动态的获取帖子列表
 // 按创建时间排序 或者 按分数排序
-// 1. 获取参数
+// 1. 获取请求的 query String 参数
 // 2. 去Redis查询ID列表
 // 3. 根据ID去数据库查询帖子详细信息
 func GetPostListHandler2(c *gin.Context) {
 	// GET请求参数(query string)：/api/v1/posts2?page=1&size=10&order=time
 	// 获取分页参数
 	// 初始化结构体时指定初始参数
+	// 定义结构体参数变量时可以指定默认值
 	p := &models.ParamPostList{
 		Page:  1,
 		Size:  10,

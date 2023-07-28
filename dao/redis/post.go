@@ -4,6 +4,8 @@ import (
 	"bluebell/models"
 	"context"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 // GetPostIDsInOrder
@@ -38,4 +40,33 @@ func GetPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
 	end := start + p.Size - 1
 	// 3. ZREVRANGE 按分数从大到小的顺序查询指定数量的元素
 	return client.ZRevRange(ctx, key, start, end).Result()
+}
+
+// GetPostVoteData 根据ids查询每篇帖子的投赞成票的数据
+func GetPostVoteData(ids []string) (data []int64, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	//data = make([]int64, 0, len(ids))
+	//for _, id := range ids {
+	//	key := getRedisKey(KeyPostVotedZSetPrefix + id)
+	//	// 查找Key中分数是1的元素的数量 -> 统计每篇帖子的赞成票的数量
+	//	v := client.ZCount(ctx, key, "1", "1").Val()
+	//	data = append(data, v)
+	//}
+	// 使用pipeline一次发送多条命令，减少RTT
+	pipeline := client.TxPipeline()
+	for _, id := range ids {
+		key := getRedisKey(KeyPostVotedZSetPrefix + id)
+		pipeline.ZCount(ctx, key, "1", "1")
+	}
+	cmders, err := pipeline.Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	data = make([]int64, 0, len(cmders))
+	for _, cmder := range cmders {
+		v := cmder.(*redis.IntCmd).Val()
+		data = append(data, v)
+	}
+	return
 }
