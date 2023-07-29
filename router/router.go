@@ -36,6 +36,7 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.GET("/posts2", controller.GetPostListHandler2)
 
 		v1.POST("/vote", controller.PostVoteHandler)
+		v1.POST("/vote", controller.GetCommunityPostListHandler)
 	}
 
 	v1.GET("/ping", middlewares.JWTAuthMiddleware(), func(context *gin.Context) {

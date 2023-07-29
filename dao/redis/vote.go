@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -39,7 +40,7 @@ var (
 	ErrVoteRepeated   = errors.New("不允许重复投票")
 )
 
-func CreatePost(postID int64) error {
+func CreatePost(postID, communityID int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 	// 事务
@@ -58,6 +59,9 @@ func CreatePost(postID int64) error {
 			Score:  float64(time.Now().Unix()),
 			Member: postID,
 		})
+		// 把帖子ID加到社区SET
+		cKey := getRedisKey(KeyCommunitySetPrefix + strconv.Itoa(int(communityID)))
+		pipeliner.SAdd(ctx, cKey, postID)
 		// Exec is to send all the commands buffered in the pipeline to the redis-server.
 		_, err := pipeliner.Exec(ctx)
 		return err
