@@ -9,15 +9,15 @@ const (
 
 // ParamSignUp 注册请求参数
 type ParamSignUp struct {
-	Username   string `json:"username" binding:"required"`
-	Password   string `json:"password" binding:"required"`
-	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
+	Username   string `json:"username" binding:"required"`                     // 用户名
+	Password   string `json:"password" binding:"required"`                     // 密码
+	RePassword string `json:"re_password" binding:"required,eqfield=Password"` // 确认密码
 }
 
 // ParamLogin 登录请求参数
 type ParamLogin struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required"` // 用户名
+	Password string `json:"password" binding:"required"` // 密码
 }
 
 // ParamVoteData 投票数据
@@ -29,8 +29,8 @@ type ParamVoteData struct {
 
 // ParamPostList 获取帖子列表 query string 参数
 type ParamPostList struct {
-	CommunityID int64  `json:"community_id" from:"community_id"` // 可以为空
-	Page        int64  `form:"page"`
-	Size        int64  `form:"size"`
-	Order       string `form:"order"`
+	CommunityID int64  `json:"community_id" from:"community_id"`   // 可以为空
+	Page        int64  `json:"page" form:"page"`                   // 页码
+	Size        int64  `json:"size" form:"size"`                   // 每页数据量
+	Order       string `json:"order" form:"order" example:"score"` // 排序依据
 }

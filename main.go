@@ -25,6 +25,20 @@ import (
 
 // Go Web 开发通用的脚手架模版
 
+// @title bluebell项目接口文档
+// @version 1.0
+// @description Go Web 开发项目实战
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name qiao
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host 8000
+// @BasePath http:127.0.0.1:8000/api/v1
 func main() {
 	filename := flag.String("filename", "config.yaml", "config file")
 	// 解析命令行参数
@@ -35,7 +49,7 @@ func main() {
 	fmt.Println("NArg", flag.NArg())
 	//返回使用的命令行参数个数
 	fmt.Println("NFlag", flag.NFlag())
-	if flag.NArg() != 1 || flag.NArg() != 1 {
+	if flag.NArg() != 1 {
 		fmt.Println("please need config file.eg: bluebell config.yaml")
 		return
 	}
@@ -49,7 +63,14 @@ func main() {
 		fmt.Printf("init logger failed, error: %v\n", err)
 		return
 	}
-	defer zap.L().Sync()
+	//defer zap.L().Sync()
+	defer func() {
+		if err := zap.L().Sync(); err != nil {
+			// 处理 Sync 方法的错误
+			fmt.Printf("defer zap.L().Sync() failed, error: %v\n", err)
+			panic(err)
+		}
+	}()
 	zap.L().Debug("logger initialized successfully")
 	//	3. 初始化 MySQL 连接
 	if err := mysql.Init(setting.Conf.MySQLConfig); err != nil {

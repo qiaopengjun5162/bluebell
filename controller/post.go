@@ -18,6 +18,13 @@ import (
 // 4. 调用逻辑层的 CreatePost 函数在数据库中创建帖子。
 // 5. 如果在帖子创建过程中出现错误，将记录错误日志并返回服务器繁忙的错误响应。
 // 6. 如果帖子成功创建，将返回成功的响应。
+// @Summary 创建帖子的接口
+// @Tags 帖子相关接口(api分组展示使用的)
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "Bearer JWT"
+// @Security ApiKeyAuth
+// @Router /post [post]
 func CreatePostHandler(c *gin.Context) {
 	// 1. 获取参数及参数的校验
 	// c.ShouldBindJSON() validator --> binding tag
@@ -45,6 +52,13 @@ func CreatePostHandler(c *gin.Context) {
 }
 
 // CreatePostDetailHandler 获取帖子详情的处理函数
+// @Summary 获取帖子详情的接口
+// @Tags 帖子相关接口(api分组展示使用的)
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "Bearer JWT"
+// @Security ApiKeyAuth
+// @Router /post/:id [get]
 func CreatePostDetailHandler(c *gin.Context) {
 	// 1. 获取参数（从URL中获取帖子的ID）
 	pidStr := c.Param("id")
@@ -66,6 +80,13 @@ func CreatePostDetailHandler(c *gin.Context) {
 }
 
 // GetPostListHandler 获取帖子列表的处理函数
+// @Summary 获取帖子列表的接口
+// @Tags 帖子相关接口(api分组展示使用的)
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "Bearer JWT"
+// @Security ApiKeyAuth
+// @Router /posts [get]
 func GetPostListHandler(c *gin.Context) {
 	// 获取分页参数
 	pageNumber, pageSize := getPageInfo(c)
@@ -86,6 +107,16 @@ func GetPostListHandler(c *gin.Context) {
 // 1. 获取请求的 query String 参数
 // 2. 去Redis查询ID列表
 // 3. 根据ID去数据库查询帖子详细信息
+// @Summary 升级版帖子列表接口
+// @Description 可按社区按时间或分数排序查询帖子列表接口
+// @Tags 帖子相关接口(api分组展示使用的)
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "Bearer JWT"
+// @Param object query models.ParamPostList false "查询参数"
+// @Security ApiKeyAuth
+// @Success 200 {object} _ResponsePostList
+// @Router /posts2 [get]
 func GetPostListHandler2(c *gin.Context) {
 	// GET请求参数(query string)：/api/v1/posts2?page=1&size=10&order=time
 	// 获取分页参数
