@@ -36,6 +36,6 @@ type ParamPostList struct {
 
 // ParamCommunityPostList 按社区获取帖子列表 query string 参数
 type ParamCommunityPostList struct {
-	ParamPostList
+	*ParamPostList
 	CommunityID int64 `json:"community_id" from:"community_id"`
 }

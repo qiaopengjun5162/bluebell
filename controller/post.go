@@ -117,7 +117,7 @@ func GetPostListHandler2(c *gin.Context) {
 // GetCommunityPostListHandler 根据社区去查询帖子列表
 func GetCommunityPostListHandler(c *gin.Context) {
 	p := &models.ParamCommunityPostList{
-		ParamPostList: models.ParamPostList{
+		ParamPostList: &models.ParamPostList{
 			Page:  1,
 			Size:  10,
 			Order: models.OrderTime, // magic string
