@@ -83,7 +83,7 @@ func GetPostVoteData(ids []string) (data []int64, err error) {
 }
 
 // GetCommunityPostIDsInOrder 按社区查询ids
-func GetCommunityPostIDsInOrder(p *models.ParamCommunityPostList) ([]string, error) {
+func GetCommunityPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 	orderKey := getRedisKey(KeyPostTimeZSet)
