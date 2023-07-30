@@ -9,6 +9,7 @@ import (
 
 	_ "bluebell/docs"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -48,6 +49,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/ping", middlewares.JWTAuthMiddleware(), func(context *gin.Context) {
 		context.String(http.StatusOK, "pong")
 	})
+	pprof.Register(r) // register pprof 相关路由
 	r.NoRoute(func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{
 			"message": "404",
