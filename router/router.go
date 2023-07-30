@@ -5,6 +5,7 @@ import (
 	"bluebell/logger"
 	"bluebell/middlewares"
 	"net/http"
+	"time"
 
 	_ "bluebell/docs"
 
@@ -18,7 +19,7 @@ func SetupRouter(mode string) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode) // gin 设置成发布模式
 	}
 	r := gin.New()
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), middlewares.RateLimitMiddleware(2*time.Second, 1))
 	// https://github.com/swaggo/gin-swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
